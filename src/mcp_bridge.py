@@ -11,7 +11,7 @@ from mcp.server.fastmcp import FastMCP
 logger = logging.getLogger(__name__)
 
 # Base URL for the FastAPI server
-port = int(os.getenv("MCP_PORT", 8000))
+port = int(os.getenv("PORT", 8000))
 BASE_URL = f"http://127.0.0.1:{port}"
 
 def wait_for_server(max_retries=30, delay=0.5):
