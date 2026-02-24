@@ -2,6 +2,7 @@ import requests
 import json
 import logging
 import os
+import time
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from mcp.server.fastmcp import FastMCP
@@ -13,9 +14,27 @@ logger = logging.getLogger(__name__)
 port = int(os.getenv("MCP_PORT", 8000))
 BASE_URL = f"http://127.0.0.1:{port}"
 
+def wait_for_server(max_retries=30, delay=0.5):
+    """Wait for FastAPI server to be ready."""
+    for i in range(max_retries):
+        try:
+            response = requests.get(f"{BASE_URL}/health", timeout=1)
+            if response.status_code == 200:
+                logger.info("FastAPI server is ready")
+                return True
+        except requests.exceptions.RequestException:
+            if i == 0:
+                logger.info(f"Waiting for FastAPI server at {BASE_URL}...")
+            time.sleep(delay)
+    logger.error(f"FastAPI server not ready after {max_retries * delay} seconds")
+    return False
+
 def create_mcp_server():
     """Creates and configures the MCP server with tools that map to the FastAPI endpoints."""
     mcp = FastMCP("calendar-mcp")
+    
+    # Wait for FastAPI server to be ready
+    wait_for_server()
     
     @mcp.tool()
     async def list_calendars(min_access_role: str = None) -> str:

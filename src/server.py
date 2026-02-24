@@ -83,6 +83,12 @@ def startup_event():
         # Set credentials to None to indicate failure
         global_credentials = None
 
+# --- Health Check Endpoint ---
+@app.get("/health")
+def health_check():
+    """Health check endpoint for server readiness."""
+    return {"status": "ok"}
+
 # --- Dependency for Credentials ---
 def get_current_credentials() -> Credentials:
     """Dependency to provide valid credentials to endpoints. Attempts refresh if invalid."""
